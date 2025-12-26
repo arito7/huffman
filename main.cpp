@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -23,6 +24,21 @@ struct Compare {
 	bool operator()(Node * a, Node * b){
 		return a->freq > b->freq;
 	}
+};
+
+std::map<char, std::string> huffmanCodes;
+
+void generateCodes(Node * n, std::string code){
+	if (n == nullptr){
+		return;
+	}
+	if (n->left && n->right){
+		generateCodes(n->left, code + '0');
+		generateCodes(n->right, code + '1');
+	} else {
+		huffmanCodes[n->ch] = code;
+		std::cout << n->ch << " : " << code << std::endl;
+	} 
 };
 
 int main(){
@@ -87,6 +103,9 @@ int main(){
 		std::cout << right->ch << " : " << right->freq << std::endl;
 		std::cout << parent->ch << " : " << parent->freq << std::endl;
 	}
+
+	generateCodes(minHeap.top(), "");
+
 
 	return 0;
 }

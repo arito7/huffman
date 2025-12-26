@@ -1,4 +1,35 @@
-new keyword
+build `g++ main.cpp -o huffman`
+
+# properties of a huffman tree
+## structural properties
+- it is a full binary tree, meaning you will never see a node with just 1 child
+- characters are only at the leaves, all internal nodes are structural placeholders containing the sum of frequencies
+- N leaves = N - 1 internal nodes. Total nodes = 2N-1
+## Algorithmic Properties (Logic)
+    The Prefix Property: Because all characters are leaves, no character's code is a prefix of another character's code.
+
+        Example: If 'a' is 0, then no other character can start with 0 (like 01 or 001). This is crucial because it allows us to decode the stream without separators. As soon as you trace a path to a leaf, you know the character is done.
+
+    Optimality: A Huffman tree guarantees the minimum weighted path length.
+
+    Frequent characters (high count) are closer to the root (short binary codes).
+
+    Rare characters (low count) are deeper in the tree (long binary codes).
+
+## Sibling Property: 
+In a Huffman tree, the two nodes with the lowest frequencies are always siblings (they share the same parent). This is a direct result of the "combine smallest two" building process.
+Tie-Breaking (The "Variation" Property)
+
+While the efficiency of a Huffman tree is mathematically unique, the exact shape is not.
+
+    If two characters have the same frequency (e.g., 'a': 2 and 'b': 2), you can swap them.
+
+    The length of the codes will be the same, but the actual 0s and 1s might differ (e.g., 01 vs 10).
+
+    This is why your output might look slightly different from mine, but the total number of bits in the compressed file should be identical.
+
+## new keyword
+
 if you don't use the new keyword when creating a struct it is made in stack memory, data created in stack memory dies when it reaches the closing curly bracket.
 if you do use the new keyword it is allocated memory in the heap.
 if you use the heap it will not be automatically garbage collected if you lose the pointer before deleting it you will create a memory leak.
