@@ -1,5 +1,23 @@
 build `g++ main.cpp -o huffman`
 
+# steps
+1. open and read input file
+2. frequency analysis (generate a frequency map)
+3. generate the huffman tree
+4. generate the huffman codes
+5. compress and write to output file
+6. read compressed file and decompress into original string
+
+# 1. Open and Read Input File
+# 2. Frequency Analysis
+# 3. Generate A Huffman Tree
+# 4. Generate Huffman Codes
+- recursively generate codes
+- recursion allows us to remember the path we took to reach the leaf node
+- we can also apply teh divide and conquer logic with recursion where we solve smaller problems to solve the big problem.
+# 5. Compress and Write to Output File
+- important to write the data as binary (or the entire thing is pointless)
+
 # properties of a huffman tree
 ## structural properties
 - it is a full binary tree, meaning you will never see a node with just 1 child
