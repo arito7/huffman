@@ -26,7 +26,7 @@ struct Compare {
 	}
 };
 
-std::map<char, std::string> huffmanCodes;
+static std::map<char, std::string> huffmanCodes;
 
 void generateCodes(Node * n, std::string code){
 	if (n == nullptr){
@@ -41,10 +41,49 @@ void generateCodes(Node * n, std::string code){
 	} 
 };
 
+void huffmanSaveAndCompress(std::string inputFilePath, std::string outputFilePath, std::map<char, std::string>codes){
+	std::ifstream inputFile(inputFilePath);
+	std::ofstream outputFile(outputFilePath, std::ios::app | std::ios::binary);
+
+	unsigned char buffer = 0;
+	int bitCount = 0;
+
+	char c;
+	while(inputFile.get(c)){
+		// std::string code = codes[c];
+
+		for (const char bit : codes[c]){
+			buffer = buffer << 1;
+			bitCount += 1;
+			if ( bit == '1' ) {
+				buffer = buffer | 1;
+			}
+
+			if (bitCount == 8){
+				outputFile.put(buffer);
+				buffer = 0;
+				bitCount = 0;
+			}
+		}
+	}
+	if (bitCount > 0){
+		while(bitCount < 8){
+			buffer = buffer << 1;
+			bitCount += 1;
+		}
+		outputFile.put(buffer);
+	}
+};
+
 int main(){
 	std::cout << "Huffman project initialized" << std::endl;
 
-	std::ifstream inputFile("input.txt");
+	std::string inputFilePath = "input.txt";
+	std::string outputFilePath = "compressed.bin";
+	
+	std::ifstream inputFile(inputFilePath);
+	// because we aren't using the append flag, we won't be appending data to any previous output files
+	std::ofstream outputFile(outputFilePath, std::ios::binary);
 
 	if (!inputFile.is_open()){
 		std::cerr << "Error: Could not open input file" << std::endl;
@@ -104,8 +143,16 @@ int main(){
 		std::cout << parent->ch << " : " << parent->freq << std::endl;
 	}
 
+	int totalCount = minHeap.top()->freq;
+	outputFile.write(reinterpret_cast<char*>(&totalCount), sizeof(int));
+	outputFile.close();
 	generateCodes(minHeap.top(), "");
+	huffmanSaveAndCompress(inputFilePath, outputFilePath, huffmanCodes);
 
+	std::ifstream iFile(outputFilePath, std::ios::binary);
+
+	iFile.read(reinterpret_cast<char*>(&totalCount), sizeof(int));
+	std::cout<<"Total Count Decoded: "<<totalCount<<std::endl;
 
 	return 0;
 }
