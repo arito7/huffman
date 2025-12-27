@@ -125,34 +125,19 @@ int main(){
 		return 1;
 	}
 
+	// create frequency map
 	std::map<char, int> frequency;
 
 	char c;
 
 	while(inputFile.get(c)){
-		std::cout << c << std::endl;
 		frequency[c]++;
 	}
 
-	std::cout << "Character Frequencies:" << std::endl;
-
-	for (const auto& pair : frequency){
-		char c = pair.first;
-		int count = pair.second;
-
-		std::cout << "'";
-		
-		if (c == '\n') {
-			std::cout << "\\n";
-		} else {
-			std::cout << c;
-		}
-
-		std::cout << "' : " << pair.second << std::endl;
-	}
 
 	inputFile.close();
 
+	// create huffman tree
 	for (const auto& c : frequency){
 		Node *node = new Node( c.first, c.second );
 		huffmanTree.push(node);
@@ -190,3 +175,21 @@ int main(){
 	return 0;
 }
 
+void printFrequencyTable(std::map<char, int> freqMap){
+	std::cout << "Character Frequencies:" << std::endl;
+
+	for (const auto& pair : freqMap){
+		char c = pair.first;
+		int count = pair.second;
+
+		std::cout << "'";
+
+		if (c == '\n') {
+			std::cout << "\\n";
+		} else {
+			std::cout << c;
+		}
+
+		std::cout << "' : " << pair.second << std::endl;
+	}
+}
