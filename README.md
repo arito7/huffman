@@ -17,6 +17,8 @@ build `g++ main.cpp -o huffman`
 - we can also apply teh divide and conquer logic with recursion where we solve smaller problems to solve the big problem.
 # 5. Compress and Write to Output File
 - important to write the data as binary (or the entire thing is pointless)
+- write the total character count at the beginning of the file so we know when to stop the decompression. otherwise the possible trailing 0's of the last byte can be decoded into unwanted characters.
+- we also need to incldue the huffmancodes into the outputfile so we know how to decode it
 
 # properties of a huffman tree
 ## structural properties

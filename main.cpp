@@ -27,6 +27,7 @@ struct Compare {
 };
 
 static std::map<char, std::string> huffmanCodes;
+static std::priority_queue<Node*, std::vector<Node*>, Compare> huffmanTree;
 
 void generateCodes(Node * n, std::string code){
 	if (n == nullptr){
@@ -75,6 +76,40 @@ void huffmanSaveAndCompress(std::string inputFilePath, std::string outputFilePat
 	}
 };
 
+void decompress(Node * root, std::string inputFilePath){
+	std::ifstream iFile(inputFilePath, std::ios::binary);
+
+	int totalCharacters;
+	iFile.read(reinterpret_cast<char*>(&totalCharacters), sizeof(int));
+	std::cout << "total characters: " << totalCharacters << std::endl;
+	char byte;
+	Node * curr = root;
+
+	std::string output = "";
+	while (iFile.get(byte)) {
+		for (int i = 7; i >= 0; i--) {
+			if (!curr->left || !curr->right){
+				output = output + curr->ch;
+				curr = root;
+			}
+
+			int bit = (byte >> i) & 1;
+
+			if (bit == 0){
+				if (curr->left){
+					curr = curr->left;
+				}
+			} else {
+				if (curr->right){
+					curr = curr->right;
+				}
+			}
+		}
+	}
+	std::cout << output << std::endl;
+
+}
+
 int main(){
 	std::cout << "Huffman project initialized" << std::endl;
 
@@ -118,35 +153,32 @@ int main(){
 
 	inputFile.close();
 
-	std::priority_queue<Node*, std::vector<Node*>, Compare> minHeap;
-	// std::priority_queue<Node*, std::vector<Node*>, Compare> minHeap;
-
 	for (const auto& c : frequency){
 		Node *node = new Node( c.first, c.second );
-		minHeap.push(node);
+		huffmanTree.push(node);
 	}
 
 
-	std::cout << "printing minheap of size: " << minHeap.size() << std::endl;
+	std::cout << "printing minheap of size: " << huffmanTree.size() << std::endl;
 
-	while (minHeap.size() > 1){
-		Node * left  = minHeap.top();
-		minHeap.pop();
-		Node * right = minHeap.top();
-		minHeap.pop();
+	while (huffmanTree.size() > 1){
+		Node * left  = huffmanTree.top();
+		huffmanTree.pop();
+		Node * right = huffmanTree.top();
+		huffmanTree.pop();
 		Node * parent = new Node('$', left->freq + right->freq);
 		parent->left = left;
 		parent->right = right;
-		minHeap.push(parent);
+		huffmanTree.push(parent);
 		std::cout << left->ch << " : " << left->freq << std::endl;
 		std::cout << right->ch << " : " << right->freq << std::endl;
 		std::cout << parent->ch << " : " << parent->freq << std::endl;
 	}
 
-	int totalCount = minHeap.top()->freq;
+	int totalCount = huffmanTree.top()->freq;
 	outputFile.write(reinterpret_cast<char*>(&totalCount), sizeof(int));
 	outputFile.close();
-	generateCodes(minHeap.top(), "");
+	generateCodes(huffmanTree.top(), "");
 	huffmanSaveAndCompress(inputFilePath, outputFilePath, huffmanCodes);
 
 	std::ifstream iFile(outputFilePath, std::ios::binary);
@@ -154,5 +186,7 @@ int main(){
 	iFile.read(reinterpret_cast<char*>(&totalCount), sizeof(int));
 	std::cout<<"Total Count Decoded: "<<totalCount<<std::endl;
 
+	decompress(huffmanTree.top(), outputFilePath);
 	return 0;
 }
+
