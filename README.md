@@ -1,5 +1,8 @@
 build `g++ main.cpp -o huffman`
 
+# improvements (todo)
+1. use vector instead of map for frequency analysis
+
 # steps
 1. open and read input file
 2. frequency analysis (generate a frequency map)
@@ -19,8 +22,17 @@ build `g++ main.cpp -o huffman`
 - important to write the data as binary (or the entire thing is pointless)
 - write the total character count at the beginning of the file so we know when to stop the decompression. otherwise the possible trailing 0's of the last byte can be decoded into unwanted characters.
 - we also need to incldue the huffmancodes into the outputfile so we know how to decode it
-
+- serialize the huffman tree and output
+- the order the left and right child are processed is not important. it will only serve to change the 0 or 1 bit, and has no effect on the compression efficiency. the depth is the only thing that is taken into consideration in the context of compression. 
+- when serializing and deserializing it is important to keep in mind which child you process first. while the order you process the left and right child does not initially make a difference, it does make a difference during the serialization/deserialization process as an identical tree needs to be reconstructed to decode. 
+# 6. Decode
+- deserialize huffman tree
+- decode using the reconstructed huffman tree
 # properties of a huffman tree
+
+## mistakes and assumptions
+- when serializing the huffman tree i assumed i needed the frequency but when decoding the frequency is not needed, only the shape of the tree.
+
 ## structural properties
 - it is a full binary tree, meaning you will never see a node with just 1 child
 - characters are only at the leaves, all internal nodes are structural placeholders containing the sum of frequencies
