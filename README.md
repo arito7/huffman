@@ -1,14 +1,10 @@
+build `g++ main.cpp -o huffman`
 # Huffman Coding
 Huffman coding is a greedy lossless data compression algorithm.
-
 # Complexity Analysis
-
-build `g++ main.cpp -o huffman`
-
-# improvements (todo)
+# Improvements (todo)
 1. use vector instead of map for frequency analysis
 2. see other ways of doing a frequency analysis other than just straight up character frequency
-
 # Steps
 ## Compression
 1. open and read input file
@@ -27,7 +23,7 @@ build `g++ main.cpp -o huffman`
 ## 1. Open and Read Input File
 ## 2. Frequency Analysis
 ## 3. Generate A Huffman Tree
-3# 4. Generate Huffman Codes
+## 4. Generate Huffman Codes
 - recursively generate codes
 - recursion allows us to remember the path we took to reach the leaf node
 - we can also apply teh divide and conquer logic with recursion where we solve smaller problems to solve the big problem.
