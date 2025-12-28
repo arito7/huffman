@@ -11,18 +11,18 @@ build `g++ main.cpp -o huffman`
 
 # Steps
 ## Compression
-    1. open and read input file
-    2. frequency analysis (generate a frequency map)
-    3. generate the huffman tree
-    4. generate the huffman codes
-    5. compress using the huffman codes and write to output binary file
-        - write total letter count
-        - write serialized huffman tree
-        - write the actual compressed content
+1. open and read input file
+2. frequency analysis (generate a frequency map)
+3. generate the huffman tree
+4. generate the huffman codes
+5. compress using the huffman codes and write to output binary file
+    - write total letter count
+    - write serialized huffman tree
+    - write the actual compressed content
 ## Decompression
-    1. read compressed binary file
-    2. deserialize huffman tree
-    3. decode the binary data using the huffman tree
+1. read compressed binary file
+2. deserialize huffman tree
+3. decode the binary data using the huffman tree
 
 # 1. Open and Read Input File
 # 2. Frequency Analysis
