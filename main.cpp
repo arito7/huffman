@@ -27,7 +27,15 @@ struct Compare {
 };
 
 static std::map<char, std::string> huffmanCodes;
-static std::priority_queue<Node*, std::vector<Node*>, Compare> huffmanTree;
+
+void readAndPrintFile(std::ifstream &file){
+	std::string line;
+	
+	std::cout << " Printing file contents " << std::endl;
+	while(std::getline(file, line)){
+		std::cout << line << std::endl;
+	}
+}
 
 void generateCodes(Node * n, std::string code){
 	if (n == nullptr){
@@ -42,18 +50,53 @@ void generateCodes(Node * n, std::string code){
 	} 
 };
 
-void huffmanSaveAndCompress(std::string inputFilePath, std::string outputFilePath, std::map<char, std::string>codes){
-	std::ifstream inputFile(inputFilePath);
-	std::ofstream outputFile(outputFilePath, std::ios::app | std::ios::binary);
+// pre order traversal DFS
+void serializeHuffmanTree(Node * node, std::ofstream & outfile){
+	if (!node) {
+		return;
+	}
+	
+	if (!node->right && !node->left){
+		outfile.put('1');
+		outfile.put(node->ch);
+		return;
+	} else {
+		outfile.put('0');
+		serializeHuffmanTree(node->left, outfile);
+		serializeHuffmanTree(node->right, outfile);
+	}
+};
 
+Node* deserializeHuffmanTree(std::ifstream &inputFile){
+	char c;
+	if(!inputFile.get(c)){
+		std::cout << "deserialize .get failed" << std::endl;
+		return nullptr;
+	};
+	if (c == '1'){
+		char ch;
+		inputFile.get(ch);
+		return new Node(ch, 0);
+	} else {
+		Node * node = new Node('$', 0);
+		node->left = deserializeHuffmanTree(inputFile);
+		node->right = deserializeHuffmanTree(inputFile);
+		return node;
+	}
+}
+
+void huffmanSaveAndCompress(Node * huffmanTree, std::ifstream & iFile, std::ofstream & oFile){
+
+	serializeHuffmanTree(huffmanTree, oFile);
+	
+	iFile.clear();
+	iFile.seekg(0, std::ios::beg);
 	unsigned char buffer = 0;
 	int bitCount = 0;
 
 	char c;
-	while(inputFile.get(c)){
-		// std::string code = codes[c];
-
-		for (const char bit : codes[c]){
+	while(iFile.get(c)){
+		for (const char bit : huffmanCodes[c]){
 			buffer = buffer << 1;
 			bitCount += 1;
 			if ( bit == '1' ) {
@@ -61,7 +104,7 @@ void huffmanSaveAndCompress(std::string inputFilePath, std::string outputFilePat
 			}
 
 			if (bitCount == 8){
-				outputFile.put(buffer);
+				oFile.put(buffer);
 				buffer = 0;
 				bitCount = 0;
 			}
@@ -72,25 +115,27 @@ void huffmanSaveAndCompress(std::string inputFilePath, std::string outputFilePat
 			buffer = buffer << 1;
 			bitCount += 1;
 		}
-		outputFile.put(buffer);
+		oFile.put(buffer);
 	}
 };
 
-void decompress(Node * root, std::string inputFilePath){
-	std::ifstream iFile(inputFilePath, std::ios::binary);
+void decodeHuffman(int totalCharacter, Node *root, std::ifstream &inputFile){
 
-	int totalCharacters;
-	iFile.read(reinterpret_cast<char*>(&totalCharacters), sizeof(int));
-	std::cout << "total characters: " << totalCharacters << std::endl;
-	char byte;
 	Node * curr = root;
 
 	std::string output = "";
-	while (iFile.get(byte)) {
+
+	int count = 0;
+	char byte;
+	while (inputFile.get(byte)) {
 		for (int i = 7; i >= 0; i--) {
 			if (!curr->left || !curr->right){
 				output = output + curr->ch;
+				count++;
 				curr = root;
+				if(count >= totalCharacter){
+					break;
+				}
 			}
 
 			int bit = (byte >> i) & 1;
@@ -106,12 +151,72 @@ void decompress(Node * root, std::string inputFilePath){
 			}
 		}
 	}
+	std::cout << std::endl;
+	std::cout << "Decoded output: ";
 	std::cout << output << std::endl;
+}
 
+void printBTpreOrderDFS(Node * node){
+	if (!node){
+		return;
+	}
+	if(!node->right && !node->left){
+		std::cout << node->ch;
+	} else {
+		printBTpreOrderDFS(node->left);
+		printBTpreOrderDFS(node->right);
+	}
+}
+
+void printHuffmanTree(Node * node){
+	std::cout << std::endl;
+	std::cout << "--------------------------------" << std::endl;
+	std::cout << std::endl;
+	printBTpreOrderDFS(node);
+	std::cout << std::endl;
+	std::cout << "--------------------------------" << std::endl;
+	std::cout << std::endl;
+}
+
+std::map<char, int> createFrequencyMap(std::ifstream &ifstream){
+	std::map<char, int> frequency;
+
+	char c;
+
+	while(ifstream.get(c)){
+		frequency[c]++;
+	}
+
+	return frequency;
+}
+
+Node * createHuffmanTree(std::map<char, int> frequencyMap){
+	std::priority_queue<Node *, std::vector<Node *>, Compare> minHeap;
+
+	for (const auto& c : frequencyMap){
+		Node *node = new Node( c.first, c.second );
+		minHeap.push(node);
+	}
+
+	while (minHeap.size() > 1){
+		Node * right  = minHeap.top();
+		minHeap.pop();
+		Node * left = minHeap.top();
+		minHeap.pop();
+		Node * parent = new Node('$', left->freq + right->freq);
+		parent->left = left;
+		parent->right = right;
+		minHeap.push(parent);
+	}
+	return minHeap.top();
 }
 
 int main(){
 	std::cout << "Huffman project initialized" << std::endl;
+
+	std::cout << "-----------------------------------------" << std::endl;
+	std::cout << " Beginning Compression " << std::endl;
+	std::cout << "-----------------------------------------" << std::endl;
 
 	std::string inputFilePath = "input.txt";
 	std::string outputFilePath = "compressed.bin";
@@ -125,53 +230,46 @@ int main(){
 		return 1;
 	}
 
-	// create frequency map
-	std::map<char, int> frequency;
+	std::map<char, int> frequency = createFrequencyMap(inputFile);
 
-	char c;
+	Node * huffmanTree = createHuffmanTree(frequency);
 
-	while(inputFile.get(c)){
-		frequency[c]++;
-	}
-
-
-	inputFile.close();
-
-	// create huffman tree
-	for (const auto& c : frequency){
-		Node *node = new Node( c.first, c.second );
-		huffmanTree.push(node);
-	}
-
-
-	std::cout << "printing minheap of size: " << huffmanTree.size() << std::endl;
-
-	while (huffmanTree.size() > 1){
-		Node * left  = huffmanTree.top();
-		huffmanTree.pop();
-		Node * right = huffmanTree.top();
-		huffmanTree.pop();
-		Node * parent = new Node('$', left->freq + right->freq);
-		parent->left = left;
-		parent->right = right;
-		huffmanTree.push(parent);
-		std::cout << left->ch << " : " << left->freq << std::endl;
-		std::cout << right->ch << " : " << right->freq << std::endl;
-		std::cout << parent->ch << " : " << parent->freq << std::endl;
-	}
-
-	int totalCount = huffmanTree.top()->freq;
+	printBTpreOrderDFS(huffmanTree);
+	// write total char count to output file
+	int totalCount = huffmanTree->freq;
 	outputFile.write(reinterpret_cast<char*>(&totalCount), sizeof(int));
-	outputFile.close();
-	generateCodes(huffmanTree.top(), "");
-	huffmanSaveAndCompress(inputFilePath, outputFilePath, huffmanCodes);
 
+	generateCodes(huffmanTree, "");
+	huffmanSaveAndCompress(huffmanTree, inputFile, outputFile);
+	inputFile.close();
+	outputFile.close();
+
+	std::cout << "-----------------------------------------" << std::endl;
+	std::cout << " Beginning Decompression " << std::endl;
+	std::cout << "-----------------------------------------" << std::endl;
 	std::ifstream iFile(outputFilePath, std::ios::binary);
 
+	// read the total character count
 	iFile.read(reinterpret_cast<char*>(&totalCount), sizeof(int));
-	std::cout<<"Total Count Decoded: "<<totalCount<<std::endl;
+	std::cout<<"Total Count: "<< totalCount <<std::endl;
 
-	decompress(huffmanTree.top(), outputFilePath);
+	std::cout<<std::endl;
+
+	std::cout << "\nDeserializing..." << std::endl;
+	
+	Node * root = deserializeHuffmanTree(iFile);
+
+	printHuffmanTree(root);
+
+	std::cout << "\nDecompressing..." << std::endl;
+
+	decodeHuffman(totalCount, root, iFile);
+
+	iFile.close();
+	std::ifstream originalFile(inputFilePath);
+	readAndPrintFile(originalFile);
+	originalFile.close();
+
 	return 0;
 }
 
