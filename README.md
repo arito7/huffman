@@ -1,4 +1,5 @@
 build `g++ main.cpp -o huffman`
+This is a personal project for learning C++ and a cool algorithm.
 # Huffman Coding
 Huffman coding is a greedy lossless data compression algorithm.
 # Complexity Analysis
