@@ -1,15 +1,28 @@
+# Huffman Coding
+Huffman coding is a greedy lossless data compression algorithm.
+
+# Complexity Analysis
+
 build `g++ main.cpp -o huffman`
 
 # improvements (todo)
 1. use vector instead of map for frequency analysis
+2. see other ways of doing a frequency analysis other than just straight up character frequency
 
-# steps
-1. open and read input file
-2. frequency analysis (generate a frequency map)
-3. generate the huffman tree
-4. generate the huffman codes
-5. compress and write to output file
-6. read compressed file and decompress into original string
+# Steps
+## Compression
+    1. open and read input file
+    2. frequency analysis (generate a frequency map)
+    3. generate the huffman tree
+    4. generate the huffman codes
+    5. compress using the huffman codes and write to output binary file
+        - write total letter count
+        - write serialized huffman tree
+        - write the actual compressed content
+## Decompression
+    1. read compressed binary file
+    2. deserialize huffman tree
+    3. decode the binary data using the huffman tree
 
 # 1. Open and Read Input File
 # 2. Frequency Analysis
@@ -30,8 +43,9 @@ build `g++ main.cpp -o huffman`
 - decode using the reconstructed huffman tree
 # properties of a huffman tree
 
-## mistakes and assumptions
+## Mistakes and Assumptions
 - when serializing the huffman tree i assumed i needed the frequency but when decoding the frequency is not needed, only the shape of the tree.
+- i assumed i needed to mark the end of serialization but by nature of the shape deserialization automatically stops once it reaches the end 
 
 ## structural properties
 - it is a full binary tree, meaning you will never see a node with just 1 child
