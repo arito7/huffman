@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <array>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -178,23 +179,18 @@ void printHuffmanTree(Node * node){
 	std::cout << std::endl;
 }
 
-std::map<char, int> createFrequencyMap(std::ifstream &ifstream){
-	std::map<char, int> frequency;
-
+void createFrequencyMap(std::array<int,256> & arr, std::ifstream &ifstream){
 	char c;
-
 	while(ifstream.get(c)){
-		frequency[c]++;
+		arr[c] = arr[c] + 1;
 	}
-
-	return frequency;
 }
 
-Node * createHuffmanTree(std::map<char, int> frequencyMap){
+Node * createHuffmanTree(std::array<int, 256> frequencyMap){
 	std::priority_queue<Node *, std::vector<Node *>, Compare> minHeap;
 
-	for (const auto& c : frequencyMap){
-		Node *node = new Node( c.first, c.second );
+	for (int i = 0; i < 256; i++){
+		Node *node = new Node((char)i, frequencyMap[i]);
 		minHeap.push(node);
 	}
 
@@ -230,7 +226,8 @@ int main(){
 		return 1;
 	}
 
-	std::map<char, int> frequency = createFrequencyMap(inputFile);
+	std::array<int, 256> frequency = {0};
+	createFrequencyMap(frequency, inputFile);
 
 	Node * huffmanTree = createHuffmanTree(frequency);
 
