@@ -1,6 +1,7 @@
 build `g++ main.cpp -o huffman`
 
 This is a personal project for learning C++ and a cool algorithm.
+
 Some things I was able to use in this project.
 - bit packing
 - heap/priority queue
