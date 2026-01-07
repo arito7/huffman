@@ -1,11 +1,22 @@
 build `g++ main.cpp -o huffman`
+
 This is a personal project for learning C++ and a cool algorithm.
+Some things I was able to use in this project.
+- bit packing
+- heap/priority queue
+- binary trees
+- dfs
+- recursion
+- serializing/deserialing
+- i/o
+
 # Huffman Coding
 Huffman coding is a greedy lossless data compression algorithm.
 # Complexity Analysis
-# Improvements (todo)
-1. use vector instead of map for frequency analysis
-2. see other ways of doing a frequency analysis other than just straight up character frequency
+// todo
+# Improvements // todo
+1. use std::array instead of std::map for frequency analysis
+2. see other ways of doing a frequency analysis other than just straight up character frequency (e.g. based on entire words that appear frequently, like prepositions)
 # Steps
 ## Compression
 1. open and read input file
@@ -62,5 +73,5 @@ This is why your output might look slightly different from mine, but the total n
     if you do use the new keyword it is allocated memory in the heap.
     if you use the heap it will not be automatically garbage collected if you lose the pointer before deleting it you will create a memory leak.
 # Mistakes and Assumptions
-- when serializing the huffman tree i assumed i needed the frequency but when decoding the frequency is not needed, only the shape of the tree.
+- when serializing the huffman tree i assumed i needed the frequency but when decoding, the frequency is not needed, only the shape of the tree.
 - i assumed i needed to mark the end of serialization but by nature of the shape deserialization automatically stops once it reaches the end 
